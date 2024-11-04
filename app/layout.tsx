@@ -24,7 +24,7 @@ export default function RootLayout({
         <UserProvider>
           <Header />
           <div className="min-h-[calc(100vh-216px)]">{children}</div>
-          <Footer />
+          {true && <Footer />}
         </UserProvider>
       </body>
     </html>

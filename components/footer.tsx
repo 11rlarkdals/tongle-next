@@ -29,10 +29,10 @@ const Footer: React.FC<Props> = ({}) => {
 
   loof({ rowSize: 3 });
 
-  console.log(ctx?.visitNum);
+  // console.log(ctx?.visitNum);
 
   return (
-    <footer className="flex items-start justify-center gap-8 bg-white text-slate-800 p-8">
+    <footer className="flex items-start justify-center gap-8 bg-slate-300 text-slate-800 p-8">
       <div className="">
         <div className="text-3xl font-extrabold">
           <Title />
@@ -62,7 +62,7 @@ const Footer: React.FC<Props> = ({}) => {
 export default Footer;
 
 const array: MenuItem[] = [
-  { title: "Modal", url: "/content/modal" },
+  { title: "Todos", url: "/content/todos" },
   { title: "Research", url: "/content/research" },
   { title: "Innovation", url: "/content/innovation" },
   { title: "Admissions + Aid", url: "/content/admissions-aid" },
