@@ -6,15 +6,19 @@ import { doneTodosFatch } from "@/utils/fatch/doneTodoFatch";
 import { removeTodosFatch } from "@/utils/fatch/removeTodoFatch";
 import { todosFatch } from "@/utils/fatch/todosFatch";
 import Layout from "@/components/layout";
+import Modal from "@/components/modals/modal";
 
 interface TodoType {
   id: number;
   title: string;
   isDone: boolean;
+  subTitle: string;
 }
 
 const Todos = () => {
+  const [showModal, setShowModal] = useState(false);
   const [newTodoInput, setNewTodoInput] = useState<string>("");
+  const [subTitle, setSubTitle] = useState<string>("");
   const [todos, setTodos] = useState<TodoType[]>([]);
 
   const addButtonHandle = async () => {
@@ -24,8 +28,9 @@ const Todos = () => {
       if (newTodo) {
         setTodos([
           ...todos,
-          { id: newTodo.id, title: newTodo.title, isDone: false },
+          { id: newTodo.id, title: newTodo.title, isDone: false, subTitle },
         ]);
+        setShowModal(false);
       }
     }
   };
@@ -60,20 +65,63 @@ const Todos = () => {
     setTodos(editTodos);
   };
 
-  useEffect(() => {
-    const getTodos = todosFatch({ setTodos });
-  }, []);
-
   return (
     <Layout mobileFootLess={true}>
       <div className="w-full flex-col h-[642px] flex items-center">
-        <div className="border w-[700px] bg-amber-400">
-          <input type="text" />
-          <input type="text" />
-        </div>
+        {showModal && (
+          <Modal setShowModal={setShowModal}>
+            <div className="w-[600px] h-[500px] bg-slate-950 p-10  rounded-lg">
+              <div className="bg-white/30  to-transparent h-full rounded-xl">
+                <div className="border border-slate-950 h-full rounded-xl">
+                  <div className="flex justify-center mb-2 text-[20px] mt-10">
+                    <label htmlFor="title" className="text-white pr-2">
+                      할일
+                    </label>
+                    <input
+                      onChange={(e) => setNewTodoInput(e.target.value)}
+                      id="title"
+                      type="text"
+                      className="text-black"
+                    />
+                  </div>
+                  <div className="flex justify-center text-[20px]">
+                    <label
+                      htmlFor="title"
+                      className="text-white pr-2 text-[20px]"
+                    >
+                      내용
+                    </label>
+                    <input
+                      onChange={(e) => setSubTitle(e.target.value)}
+                      id="title"
+                      type="text"
+                      className="text-black"
+                    />
+                  </div>
+                  <div className="flex justify-center mt-auto">
+                    <button
+                      onClick={addButtonHandle}
+                      className="p-3 px-20 bg-sky-400 rounded-xl text-white font-semibold hover:bg-sky-500 transition-all mt-48"
+                    >
+                      CREATE
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Modal>
+        )}{" "}
         <div className="max-w-[70rem] flex flex-col">
           <div className="items-center m-5">
-            <div className="title text-[5rem] font-extrabold lg:">My Notes</div>
+            <div className="flex">
+              <div className="title text-[5rem] font-extrabold lg:">
+                My Notes
+              </div>
+              <div className="" onClick={() => setShowModal(!showModal)}>
+                만들다
+              </div>
+            </div>
+
             <div className="border-red-500">
               <input
                 type="text"
