@@ -3,7 +3,7 @@ import { menu } from "@/constants";
 import { UserContext } from "@/utils/userContext";
 import Link from "next/link";
 import { ReactNode, useContext, useEffect } from "react";
-import Title from "./title";
+import Title from "../title";
 
 type MenuItem = {
   title: string;
@@ -51,10 +51,11 @@ const Footer: React.FC<Props> = ({}) => {
           )}
         </div>
       ))}
-      <div className="flex items-center">
+
+      {/* <div className="flex items-center">
         <div>Visit</div>
         <div className="bg-slate-300 px-2 m-3 rounded-lg">{ctx?.visitNum}</div>
-      </div>
+      </div> */}
     </footer>
   );
 };

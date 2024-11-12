@@ -1,9 +1,14 @@
 import axios from "axios";
+
 export const createTodoFatch = async ({ title }: { title: string }) => {
   const token = localStorage.getItem("qid");
-  if (token) {
+  if (!token) {
+    throw new Error("Token not found in localStorage");
+  }
+
+  try {
     const response = await axios.post(
-      "http://localhost:8000/createTodo",
+      `${process.env.NEXT_PUBLIC_API_URL}createTodo`,
       { title, isDone: false },
       {
         headers: {
@@ -11,6 +16,13 @@ export const createTodoFatch = async ({ title }: { title: string }) => {
         },
       }
     );
+
     return response.data.todo;
+  } catch (error: any) {
+    console.error(
+      "Error occurred during the request:",
+      error.response || error.message
+    );
+    throw new Error(error.response?.data?.message || "Unknown error occurred");
   }
 };

@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/header";
 import { ReactNode } from "react";
-import Footer from "@/components/footer";
 import { UserProvider } from "@/utils/userContext";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -22,9 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <UserProvider>
-          <Header />
           <div className="min-h-[calc(100vh-216px)]">{children}</div>
-          {true && <Footer />}
         </UserProvider>
       </body>
     </html>
