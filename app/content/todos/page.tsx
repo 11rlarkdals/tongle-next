@@ -1,37 +1,50 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { FaDeleteLeft } from "react-icons/fa6";
-import { createTodoFatch } from "@/utils/fatch/createTodosFatch";
-import { doneTodosFatch } from "@/utils/fatch/doneTodoFatch";
-import { removeTodosFatch } from "@/utils/fatch/removeTodoFatch";
-import { todosFatch } from "@/utils/fatch/todosFatch";
+import { TbCopyPlus } from "react-icons/tb";
+import React, { useState } from "react";
+import { RiExpandDiagonalLine } from "react-icons/ri";
 import Layout from "@/components/layout";
 import Modal from "@/components/modals/modal";
+import todoIcons from "@/components/todos/todoIcons";
+import todoColors from "@/components/todos/todoColors";
+
+interface iTask {
+  name: string;
+  color: string;
+  icon: keyof typeof todoIcons | undefined;
+}
 
 interface TodoType {
   id: number;
   title: string;
   isDone: boolean;
   subTitle: string;
+  subTitleVisible: boolean;
 }
 
 const Todos = () => {
   const [showModal, setShowModal] = useState(false);
   const [newTodoInput, setNewTodoInput] = useState<string>("");
   const [subTitle, setSubTitle] = useState<string>("");
-  const [todos, setTodos] = useState<TodoType[]>([]);
 
+  const [task, setTask] = useState([]);
+
+  const [todos, setTodos] = useState<TodoType[]>([]);
+  const [expendedTodo, setExpendedTodo] = useState<number | null>(null);
+
+  // 새로운 Todo 추가
   const addButtonHandle = async () => {
     if (newTodoInput.trim() !== "") {
-      const newTodo = await createTodoFatch({ title: newTodoInput });
+      const newTodo = {
+        id: Date.now(), // 임시로 id는 현재 시간으로 설정
+        title: newTodoInput,
+        isDone: false,
+        subTitle: subTitle,
+        subTitleVisible: false, // 새 할 일은 처음에 서브타이틀이 보이지 않도록 설정
+      };
+      setTodos([...todos, newTodo]);
       setNewTodoInput("");
-      if (newTodo) {
-        setTodos([
-          ...todos,
-          { id: newTodo.id, title: newTodo.title, isDone: false, subTitle },
-        ]);
-        setShowModal(false);
-      }
+      setSubTitle("");
+      setShowModal(false);
     }
   };
 
@@ -41,23 +54,9 @@ const Todos = () => {
     }
   };
 
-  // 삭제 처리 함수
-  const deleteHandle = (e: React.MouseEvent, id: number) => {
-    e.stopPropagation(); // 클릭 이벤트가 부모로 전파되지 않도록 막음
-    console.log("Deleting todo with id:", id);
-
-    // 클라이언트에서 먼저 삭제 UI 업데이트
-    const filtered = todos.filter((todo) => todo.id !== id);
-    setTodos(filtered);
-
-    // 서버에서 삭제 처리
-    removeTodosFatch({ id });
-  };
-
   const doneHandle = (id: number) => {
     const editTodos = todos.map((todo) => {
       if (todo.id === id) {
-        doneTodosFatch({ id, isDone: !todo.isDone });
         return { ...todo, isDone: !todo.isDone };
       }
       return todo;
@@ -65,61 +64,80 @@ const Todos = () => {
     setTodos(editTodos);
   };
 
+  // 각 할 일의 서브타이틀 보이기/숨기기 토글 함수
+  const toggleSubTitle = (id: number) => {
+    const updatedTodos = todos.map((todo) => {
+      if (todo.id === id) {
+        return { ...todo, subTitleVisible: !todo.subTitleVisible };
+      }
+      return todo;
+    });
+    setTodos(updatedTodos);
+  };
+
   return (
     <Layout mobileFootLess={true}>
-      <div className="w-full flex-col h-[642px] flex items-center">
+      <div className="w-full flex-col h-[642px] flex items-center bg-slate-950">
         {showModal && (
           <Modal setShowModal={setShowModal}>
-            <div className="w-[600px] h-[500px] bg-slate-950 p-10  rounded-lg">
-              <div className="bg-white/30  to-transparent h-full rounded-xl">
-                <div className="border border-slate-950 h-full rounded-xl">
-                  <div className="flex justify-center mb-2 text-[20px] mt-10">
-                    <label htmlFor="title" className="text-white pr-2">
-                      할일
-                    </label>
-                    <input
-                      onChange={(e) => setNewTodoInput(e.target.value)}
-                      id="title"
-                      type="text"
-                      className="text-black"
-                    />
-                  </div>
-                  <div className="flex justify-center text-[20px]">
-                    <label
-                      htmlFor="title"
-                      className="text-white pr-2 text-[20px]"
-                    >
-                      내용
-                    </label>
-                    <input
-                      onChange={(e) => setSubTitle(e.target.value)}
-                      id="title"
-                      type="text"
-                      className="text-black"
-                    />
-                  </div>
-                  <div className="flex justify-center mt-auto">
-                    <button
-                      onClick={addButtonHandle}
-                      className="p-3 px-20 bg-sky-400 rounded-xl text-white font-semibold hover:bg-sky-500 transition-all mt-48"
-                    >
-                      CREATE
-                    </button>
-                  </div>
+            <div className="w-96 h-96 p-6 bg-gray-800 rounded-lg">
+              <div className="bg-white bg-opacity-30 rounded-xl p-6">
+                <div className="mb-6">
+                  <label htmlFor="title" className="text-white block mb-2">
+                    할 일
+                  </label>
+                  <input
+                    id="title"
+                    type="text"
+                    onChange={(e) => setNewTodoInput(e.target.value)}
+                    onKeyDown={enterAddHandle}
+                    className="w-full p-2 text-black rounded-md"
+                    placeholder="할 일을 입력하세요"
+                  />
+                </div>
+
+                <div className="mb-6">
+                  <label htmlFor="subtitle" className="text-white block mb-2">
+                    내용
+                  </label>
+                  <input
+                    id="subtitle"
+                    type="text"
+                    onChange={(e) => setSubTitle(e.target.value)}
+                    className="w-full p-2 text-black rounded-md"
+                    placeholder="내용을 입력하세요"
+                  />
+                </div>
+
+                <div className="flex justify-center mt-4">
+                  <button
+                    onClick={addButtonHandle}
+                    className="px-8 py-3 bg-sky-400 rounded-xl text-white font-semibold hover:bg-sky-500 transition-all"
+                  >
+                    CREATE
+                  </button>
                 </div>
               </div>
             </div>
           </Modal>
-        )}{" "}
-        <div className="max-w-[70rem] flex flex-col">
+        )}
+
+        <div className="max-w-[70rem] ">
           <div className="items-center m-5">
-            <div className="flex">
+            <div className="">
               <div className="title text-[5rem] font-extrabold lg:">
                 My Notes
               </div>
-              <div className="" onClick={() => setShowModal(!showModal)}>
-                만들다
+              <div style={{ color: todoColors[1][3] }}>
+                {/* todoIcons.health는 JSX 아이콘 요소 */}
+                {todoIcons.food}
               </div>
+
+              <TbCopyPlus
+                className=""
+                onClick={() => setShowModal(!showModal)}
+                size={40}
+              />
             </div>
 
             <div className="border-red-500">
@@ -129,7 +147,7 @@ const Todos = () => {
                 placeholder="여기에 입력하세요"
                 className="text-black text-3xl p-2 max-w-[26rem]"
                 onChange={(e) => setNewTodoInput(e.target.value)}
-                onKeyDown={enterAddHandle} // 엔터 키 이벤트 연결
+                onKeyDown={enterAddHandle}
               />
             </div>
           </div>
@@ -137,23 +155,32 @@ const Todos = () => {
           <div className="text-[2rem]">
             {todos?.map((item, index) => {
               return (
-                <div
-                  key={index}
-                  className="relative mb-5 flex items-center justify-between"
-                >
-                  <div
-                    onClick={() => doneHandle(item.id)}
-                    className={`border w-[25rem] cursor-pointer text-white ml-5 p-2 flex items-center justify-between ${
-                      item.isDone && "line-through opacity-50"
-                    }`}
-                  >
-                    <div>{item.title}</div>
+                <div key={item.id} className="relative mb-2">
+                  <div className="flex items-center rounded-lg bg-slate-900">
+                    <div
+                      onClick={() => doneHandle(item.id)}
+                      className={` w-[25rem] cursor-pointer text-white  p-2 flex items-center justify-between ${
+                        item.isDone && "line-through opacity-50"
+                      }`}
+                    >
+                      {/* 여기서 각 글자에 랜덤 색상 적용 */}
+                      <div>{item.title}</div>
+                    </div>
 
-                    <FaDeleteLeft
-                      onClick={(e) => deleteHandle(e, item.id)}
-                      className="top-1/2 transform -translate-y-1/2 text-white cursor-pointer"
-                    />
+                    {item.subTitle && (
+                      <RiExpandDiagonalLine
+                        className="m-2 cursor-pointer text-green-600/85"
+                        onClick={() => toggleSubTitle(item.id)} // 해당 Todo의 서브타이틀 보이기/숨기기
+                      />
+                    )}
                   </div>
+
+                  {/* 서브타이틀 보이기 */}
+                  {item.subTitleVisible && item.subTitle && (
+                    <div className="text-gray-600 bg-white rounded-xl pl-2 mb-2">
+                      {item.subTitle}
+                    </div>
+                  )}
                 </div>
               );
             })}

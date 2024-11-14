@@ -6,6 +6,7 @@ interface Props {}
 const Page: React.FC<Props> = ({}) => {
   const [inputField, setInputField] = useState<string>("");
   const [arr, setArray] = useState<string[]>([]);
+  const [object, setObject] = useState<string[]>([]);
   return (
     <div className="m-36">
       <input
@@ -18,13 +19,16 @@ const Page: React.FC<Props> = ({}) => {
       />
       <span
         onClick={() => {
-          if (inputField) setArray([inputField, ...arr]);
+          if (inputField) setArray([inputField, ...arr, ...object]);
           setInputField("");
         }}
       >
         등록
       </span>
       {arr.map((item, index) => (
+        <div key={index}>{item}</div>
+      ))}
+      {object.map((item, index) => (
         <div key={index}>{item}</div>
       ))}
     </div>
