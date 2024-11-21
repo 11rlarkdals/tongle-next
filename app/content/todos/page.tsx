@@ -7,7 +7,7 @@ import Modal from "@/components/modals/modal";
 import todoIcons from "@/components/todos/todoIcons";
 import todoColors from "@/components/todos/todoColors";
 
-interface iTask {
+interface ITask {
   name: string;
   color: string;
   icon: keyof typeof todoIcons | undefined;
@@ -26,7 +26,7 @@ const Todos = () => {
   const [newTodoInput, setNewTodoInput] = useState<string>("");
   const [subTitle, setSubTitle] = useState<string>("");
 
-  const [task, setTask] = useState([]);
+  const [task, setTask] = useState<ITask>([]);
 
   const [todos, setTodos] = useState<TodoType[]>([]);
   const [expendedTodo, setExpendedTodo] = useState<number | null>(null);
@@ -74,6 +74,8 @@ const Todos = () => {
     });
     setTodos(updatedTodos);
   };
+
+  // 처음  데이터 가져오기 ㅋ
 
   return (
     <Layout mobileFootLess={true}>
@@ -128,11 +130,6 @@ const Todos = () => {
               <div className="title text-[5rem] font-extrabold lg:">
                 My Notes
               </div>
-              <div style={{ color: todoColors[1][3] }}>
-                {/* todoIcons.health는 JSX 아이콘 요소 */}
-                {todoIcons.food}
-              </div>
-
               <TbCopyPlus
                 className=""
                 onClick={() => setShowModal(!showModal)}
