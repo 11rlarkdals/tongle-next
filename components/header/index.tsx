@@ -20,7 +20,7 @@ const Header: React.FC<Props> = ({}) => {
 
   const userData = useContext(UserContext);
 
-  const mainColor = "#750314";
+  const mainColor = "#999999";
 
   return (
     <header className="relative h-[5rem] border-b bg-[#750314]">

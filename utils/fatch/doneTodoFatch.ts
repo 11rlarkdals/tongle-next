@@ -1,4 +1,5 @@
 import axios from "axios";
+
 export const doneTodosFatch = async ({
   isDone,
   id,
@@ -6,10 +7,16 @@ export const doneTodosFatch = async ({
   isDone: boolean;
   id: number;
 }) => {
-  const token = localStorage.getItem("qid");
-  if (token) {
+  try {
+    const token = localStorage.getItem("qid");
+
+    if (!token) {
+      console.error("Token is missing!");
+      return;
+    }
+
     const response = await axios.patch(
-      "http://localhost:8000/updateTodo",
+      `${process.env.NEXT_PUBLIC_API_URL}updateTodo`,
       { isDone, id },
       {
         headers: {
@@ -17,5 +24,14 @@ export const doneTodosFatch = async ({
         },
       }
     );
+
+    console.log("Todo update response:", response.data);
+  } catch (error) {
+    console.error("Error updating todo:", error);
+    if (axios.isAxiosError(error)) {
+      console.error("Axios error:", error.response?.data);
+    } else {
+      console.error("Unexpected error:", error);
+    }
   }
 };
